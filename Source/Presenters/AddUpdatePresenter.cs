@@ -1,4 +1,5 @@
 ﻿using Source.Views;
+using System.Text;
 
 namespace Source.Presenters;
 
@@ -7,30 +8,39 @@ public class AddUpdatePresenter
 {
     private readonly IAddUpdateView _addUpdateView;
 
-    public AddUpdatePresenter(IAddUpdateView addView)
+    public AddUpdatePresenter(IAddUpdateView addUpdateView)
     {
-        _addUpdateView = addView;
+        _addUpdateView = addUpdateView;
 
-        _addUpdateView.SaveEvent += _addView_SaveEvent;
-        _addUpdateView.CancelEvent += _addView_CancelEvent;
+        _addUpdateView.SaveEvent += AddView_SaveEvent;
+        _addUpdateView.CancelEvent += AddView_CancelEvent;
     }
 
 
-    private void _addView_SaveEvent(object? sender, EventArgs e)
+    private void AddView_SaveEvent(object? sender, EventArgs e)
     {
-        if (_addUpdateView.FirstName.Length > 3)
+        StringBuilder sb = new();
+
+        if (_addUpdateView.FirstName.Length < 3)
+            sb.Append($"{nameof(_addUpdateView.FirstName)} is wrong\n");
+
+        if (_addUpdateView.LastName.Length < 3)
+            sb.Append($"{nameof(_addUpdateView.LastName)} is wrong\n");
+
+        if (DateTime.Now.Year - _addUpdateView.DateOfBirth.Year < 18)
+            sb.Append($"{nameof(_addUpdateView.DateOfBirth)} is wrong\n");
+
+
+        if(sb.Length > 0)
         {
-            ((Form)_addUpdateView).DialogResult = DialogResult.OK;
+            MessageBox.Show(sb.ToString(), "Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
-
-        MessageBox.Show("Error Messages", "Errors", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
+        _addUpdateView.DialogResult = DialogResult.OK;
     }
 
 
-    private void _addView_CancelEvent(object? sender, EventArgs e)
-        => ((Form)_addUpdateView).DialogResult = DialogResult.Cancel;
-
+    private void AddView_CancelEvent(object? sender, EventArgs e)
+        => _addUpdateView.DialogResult = DialogResult.Cancel;
 }

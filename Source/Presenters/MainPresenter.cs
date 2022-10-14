@@ -1,4 +1,5 @@
 ﻿using Source.Models;
+using Source.Repositories;
 using Source.Views;
 
 namespace Source.Presenters;
@@ -9,28 +10,22 @@ public class MainPresenter
 {
     private readonly IMainView _mainView;
     private readonly IAddUpdateView _addUpdateView;
+    private readonly IStudentRepository _repository;
 
     private readonly BindingSource _bindingSource;
-    private readonly List<Student> _students;
 
 
-    public MainPresenter(IMainView mainView, IAddUpdateView addUpdateView)
+    public MainPresenter(IMainView mainView, IAddUpdateView addUpdateView, IStudentRepository repository)
     {
         _mainView = mainView;
         _addUpdateView = addUpdateView;
+        _repository = repository;
 
-
-        _students = new List<Student>()
-        {
-            new Student("Miri", "Huseynzade", new DateTime(2003, 9, 1), 8.3f),
-            new Student("Tural", "Haci-nebili", new DateTime(2007, 6, 24), 9.7f),
-            new Student("Kamran", "Kerimzade", new DateTime(1999, 3, 27), 10.2f),
-        };
 
 
         // Binding Source
         _bindingSource = new();
-        _bindingSource.DataSource = _students;
+        _bindingSource.DataSource = _repository.GetList();
         _mainView.SetStudentListBindingSource(_bindingSource);
 
 
@@ -46,25 +41,22 @@ public class MainPresenter
     {
         var searchValue = _mainView.SearchValue;
 
-        if (!string.IsNullOrWhiteSpace(searchValue))
-            _bindingSource.DataSource = _students
-                .Where(s =>
-                            s.FirstName
-                            .ToLower()
-                            .Contains(searchValue.ToLower())
+        bool isNullOrWhiteSpace = string.IsNullOrWhiteSpace(searchValue);
+
+        _bindingSource.DataSource = isNullOrWhiteSpace switch
+        {
+            true => _repository.GetList(),
+            false => _repository.GetList(s => 
+                            s.FirstName.Contains(searchValue, StringComparison.OrdinalIgnoreCase)
                             ||
-                            s.LastName
-                            .ToLower()
-                            .Contains(searchValue.ToLower()))
-                .ToList();
-        else
-            _bindingSource.DataSource = _students;
+                            s.LastName.Contains(searchValue, StringComparison.OrdinalIgnoreCase))
+        };
     }
 
 
     private void MainView_DeleteEvent(object? sender, EventArgs e)
     {
-        var deletedItem = _bindingSource.Current;
+        var deletedItem = _bindingSource.Current as Student;
 
         if (deletedItem is null)
         {
@@ -72,7 +64,7 @@ public class MainPresenter
             return;
         }
 
-
+        _repository.Remove(deletedItem);
         _bindingSource.Remove(deletedItem);
         MessageBox.Show("Successfully deleted", "Deleted", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }
@@ -80,9 +72,7 @@ public class MainPresenter
 
     private void MainView_AddEvent(object? sender, EventArgs e)
     {
-        var result = _addUpdateView.ShowDialog();
-
-        if (result == DialogResult.Cancel)
+        if (_addUpdateView.ShowDialog() == DialogResult.Cancel)
             return;
 
         var student = new Student
@@ -94,6 +84,7 @@ public class MainPresenter
         };
 
 
+        _repository.Add(student);
         _bindingSource.Add(student);
 
         MessageBox.Show("Successfully added", "Added", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -126,6 +117,7 @@ public class MainPresenter
         student.DateOfBirth = _addUpdateView.DateOfBirth;
 
 
+        _repository.Update(student);
         _bindingSource.ResetCurrentItem();
         MessageBox.Show("Successfully updated", "Updated", MessageBoxButtons.OK, MessageBoxIcon.Information);
     }

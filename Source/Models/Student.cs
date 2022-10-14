@@ -5,7 +5,7 @@ public class Student
     public Guid Id { get; set; }
     public string FirstName { get; set; } = default!;
     public string LastName { get; set; } = default!;
-    public DateOnly DateOfBirth { get; set; }
+    public DateTime DateOfBirth { get; set; }
     public float Score { get; set; }
 
 
@@ -14,7 +14,7 @@ public class Student
         Id = Guid.NewGuid();
     }
 
-    public Student(string firstName, string lastName, DateOnly dateOfBirth, float score)
+    public Student(string firstName, string lastName, DateTime dateOfBirth, float score)
         : this()
     {
         FirstName = firstName;
@@ -25,5 +25,5 @@ public class Student
 
 
     public override string ToString()
-        => $"Id: {Id.ToString().Remove(8)}    FirstName: {FirstName}    DateofBirth: {DateOfBirth}    Score: {Score}";
+        => $"Id: {Id.ToString().Remove(8)}   FirstName: {FirstName}   LastName: {LastName}   DateofBirth: {DateOfBirth.ToShortDateString()}   Score: {Score}";
 }

@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace Source.Views;
+﻿namespace Source.Views;
 
 public partial class MainView : Form, IMainView
 {
@@ -17,12 +7,11 @@ public partial class MainView : Form, IMainView
         InitializeComponent();
     }
 
+
     public string SearchValue => txt_search.Text;
 
     public void SetStudentListBindingSource(BindingSource source)
         => lBox_students.DataSource = source;
-
-
 
 
     // Events
@@ -30,7 +19,6 @@ public partial class MainView : Form, IMainView
     public event EventHandler? AddEvent;
     public event EventHandler? UpdateEvent;
     public event EventHandler? DeleteEvent;
-
 
     private void btn_search_Click(object sender, EventArgs e)
     {
@@ -46,4 +34,7 @@ public partial class MainView : Form, IMainView
     private void btn_add_Click(object sender, EventArgs e)
         => AddEvent?.Invoke(sender, e);
 
+
+    private void btn_update_Click(object sender, EventArgs e)
+        => UpdateEvent?.Invoke(sender, e);
 }

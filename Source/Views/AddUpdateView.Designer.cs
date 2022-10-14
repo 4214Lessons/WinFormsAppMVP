@@ -1,6 +1,6 @@
 ﻿namespace Source.Views
 {
-    partial class AddView
+    partial class AddUpdateView
     {
         /// <summary>
         /// Required designer variable.
